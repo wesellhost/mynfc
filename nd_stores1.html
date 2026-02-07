@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>دفع ومحافظ - Elkholy Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ====================
+           1. CSS CONFIG
+           ==================== */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --gold: #D4AF37;
+            --text-white: #ffffff;
+            
+            /* ألوان الشبكات */
+            --vodafone: #E60000;
+            --orange: #FF7900;
+            --etisalat: #96C93D;
+            --bank: #4A90E2;
+            --instapay: #4c096e;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Tajawal', sans-serif;
+            color: var(--text-white);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* توسيط عمودي */
+            min-height: 100vh; /* ملء ارتفاع الشاشة */
+            padding: 20px;
+        }
+
+        /* ====================
+           2. HEADER
+           ==================== */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: fadeIn 0.8s ease;
+            width: 100%;
+        }
+        .logo-text {
+            color: var(--text-white);
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .logo-text span { color: var(--gold); }
+        .sub-text { color: #888; font-size: 13px; }
+
+        /* ====================
+           3. ICONS (SVG)
+           ==================== */
+        .wallet-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        .wallet-icon path { fill: currentColor; }
+
+        /* ====================
+           4. GRID SYSTEM
+           ==================== */
+        .wrapper {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .network-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .net-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .net-card h3 { margin: 0; font-size: 15px; font-weight: 700; }
+
+        /* ألوان الكروت عند التفعيل */
+        .vf { color: var(--vodafone); }
+        .vf.active { border-color: var(--vodafone); background: rgba(230, 0, 0, 0.05); box-shadow: 0 0 15px rgba(230, 0, 0, 0.2); }
+
+        .og { color: var(--orange); }
+        .og.active { border-color: var(--orange); background: rgba(255, 121, 0, 0.05); box-shadow: 0 0 15px rgba(255, 121, 0, 0.2); }
+
+        .et { color: var(--etisalat); }
+        .et.active { border-color: var(--etisalat); background: rgba(150, 201, 61, 0.05); box-shadow: 0 0 15px rgba(150, 201, 61, 0.2); }
+
+        .bk { color: var(--bank); }
+        .bk.active { border-color: var(--bank); background: rgba(74, 144, 226, 0.05); box-shadow: 0 0 15px rgba(74, 144, 226, 0.2); }
+
+        /* Dim Effect */
+        .wrapper.has-selection .net-card:not(.active),
+        .wrapper.has-selection .insta-btn:not(.active) {
+            opacity: 0.4;
+            transform: scale(0.96);
+        }
+
+        /* ====================
+           5. INSTAPAY BUTTON
+           ==================== */
+        .insta-btn {
+            width: 100%;
+            background: var(--instapay);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(76, 9, 110, 0.3);
+            margin-bottom: 25px;
+        }
+
+        .insta-btn.active {
+            border-color: #d896ff;
+            box-shadow: 0 0 20px rgba(76, 9, 110, 0.6);
+            transform: scale(1.02);
+        }
+
+        .insta-logo {
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* ====================
+           6. ACTION AREA
+           ==================== */
+        .action-area {
+            width: 100%;
+            max-width: 400px;
+            background: #252525;
+            padding: 25px;
+            border-radius: 20px;
+            display: none;
+            animation: slideUp 0.4s ease;
+            margin-top: 10px;
+        }
+
+        .label { display: block; color: #aaa; margin-bottom: 10px; font-size: 14px; }
+
+        /* Input Styles */
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #666; font-weight: bold;}
+        
+        input {
+            width: 100%; background: #181818; border: 1px solid #333; padding: 14px;
+            padding-left: 45px; border-radius: 12px; color: #fff; font-size: 18px; font-family: inherit; font-weight: bold;
+        }
+        input:focus { border-color: var(--gold); }
+
+        /* Action Buttons */
+        .btn {
+            width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold;
+            font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; margin-bottom: 10px; text-decoration: none;
+        }
+
+        .btn-main { background: var(--text-white); color: #000; }
+        .btn-copy { background: transparent; border: 1px solid #555; color: #ccc; }
+        .btn-etisalat-app { background: #96C93D; color: #fff; }
+        .btn-insta-app { background: linear-gradient(45deg, #4c096e, #781c9c); color: #fff; }
+
+        /* Copy Box */
+        .copy-box {
+            background: #151515; border: 1px dashed #555; padding: 15px;
+            border-radius: 10px; text-align: center; margin-bottom: 15px; cursor: pointer;
+        }
+        .copy-box:active { background: #222; }
+        .copy-number { font-size: 22px; font-weight: bold; letter-spacing: 1px; color: var(--gold); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 100px);
+            background: #fff; color: #000; padding: 10px 20px; border-radius: 50px;
+            font-weight: bold; transition: 0.3s; opacity: 0; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 8px; z-index: 99;
+        }
+        .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo-text">Elkholy <span>Store</span></div>
+        <div class="sub-text">اختر وسيلة الدفع المناسبة لك</div>
+    </div>
+
+    <div class="wrapper" id="wrapper">
+        
+        <div class="network-grid">
+            <div class="net-card vf" onclick="selectOption('vf')">
+                <svg class="wallet-icon" viewBox="0 0 24 24">
+                    <path d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12C10.89,6 10,6.9 10,8V16A2,2 0 0,1 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z" />
+                </svg>
+                <h3>فودافون</h3>
+            </div>
+            
+            <div class="net-card et" onclick="selectOption('et')">
+                <svg class="wallet-icon" viewBox="0 0 24 24">
+                    <path d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12C10.89,6 10,6.9 10,8V16A2,2 0 0,1 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z" />
+                </svg>
+                <h3>اتصالات</h3>
+            </div>
+
+            <div class="net-card og" onclick="selectOption('og')">
+                <svg class="wallet-icon" viewBox="0 0 24 24">
+                    <path d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12C10.89,6 10,6.9 10,8V16A2,2 0 0,1 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z" />
+                </svg>
+                <h3>أورنج</h3>
+            </div>
+
+            <div class="net-card bk" onclick="selectOption('bk')">
+                <svg class="wallet-icon" viewBox="0 0 24 24">
+                    <path d="M11.5,1L2,6V8H21V6M16,10V17H19V10M2,22H21V19H2M10,10V17H13V10M4,10V17H7V10H4Z" />
+                </svg>
+                <h3>محفظة بنكية</h3>
+            </div>
+        </div>
+
+        <div class="insta-btn" onclick="selectOption('ipn')">
+            <img src="https://ipn.eg/img/Logo.png" class="insta-logo" alt="InstaPay">
+        </div>
+
+        <div class="action-area" id="actionArea">
+            </div>
+
+    </div>
+
+    <div class="toast" id="toast">✅ تم نسخ الرقم بنجاح</div>
+
+    <script>
+        // ====================
+        // DATA & CONFIG (تعديل الأرقام هنا)
+        // ====================
+        const NUMBERS = {
+            vodafone: "01026858019",
+            etisalat: "01100790666", // رقم اتصالات كاش الأساسي
+            insta: "01115220800"    // رقم إنستا باي
+        };
+
+        const INSTA_LINK = "https://ipn.eg/S/abdallahhamedelkholy/instapay/4veyRX";
+        
+        // رابط تطبيق اتصالات (تم تحديث الرقم في الرابط ليحول على رقم اتصالات الجديد)
+        const ETISALAT_APP_LINK = `https://app.etisalat.eg/?appScreens=cash&appScreen=cash&extra=screenId:send_money;dial:${NUMBERS.etisalat}`;
+
+        let currentMode = null;
+
+        // ====================
+        // LOGIC
+        // ====================
+        function selectOption(mode) {
+            currentMode = mode;
+            const actionArea = document.getElementById('actionArea');
+            const wrapper = document.getElementById('wrapper');
+            
+            // 1. UI Selection Effect
+            wrapper.classList.add('has-selection');
+            
+            // Reset active classes
+            document.querySelectorAll('.net-card, .insta-btn').forEach(el => el.classList.remove('active'));
+            
+            // Activate selected
+            if(mode === 'ipn') {
+                document.querySelector('.insta-btn').classList.add('active');
+            } else {
+                document.querySelector(`.${mode}`).classList.add('active');
+            }
+
+            // 2. Render Content
+            renderContent(mode);
+            
+            // 3. Show Area
+            actionArea.style.display = 'none'; // Reset animation
+            setTimeout(() => actionArea.style.display = 'block', 10);
+        }
+
+        function renderContent(mode) {
+            const area = document.getElementById('actionArea');
+            let html = '';
+
+            // --- INSTAPAY ---
+            if (mode === 'ipn') {
+                html = `
+                    <div style="text-align:center; margin-bottom:15px; color:#d896ff;">
+                        الدفع عبر إنستا باي
+                    </div>
+                    <a href="${INSTA_LINK}" target="_blank" class="btn btn-insta-app">
+                        تحويل عبر التطبيق ⚡
+                    </a>
+                    <div class="label" style="text-align:center; margin:15px 0;">أو انسخ الرقم للتحويل يدوياً</div>
+                    <div class="copy-box" onclick="copyText('${NUMBERS.insta}')">
+                        <div class="copy-number">${NUMBERS.insta}</div>
+                        <div style="font-size:12px; color:#666; margin-top:5px;">اضغط للنسخ</div>
+                    </div>
+                `;
+            } 
+            // --- BANK WALLET --- (نفس رقم اتصالات)
+            else if (mode === 'bk') {
+                html = `
+                    <div class="label">الدفع عبر المحافظ البنكية</div>
+                    <p style="font-size:13px; color:#888; line-height:1.6; margin-bottom:15px;">
+                        قم بنسخ رقم المحفظة بالأسفل (اتصالات)، ثم قم بالتحويل من خلال تطبيق البنك الخاص بك.
+                    </p>
+                    <div class="copy-box" onclick="copyText('${NUMBERS.etisalat}')">
+                        <div class="copy-number">${NUMBERS.etisalat}</div>
+                        <div style="font-size:12px; color:#666; margin-top:5px;">اضغط لنسخ الرقم</div>
+                    </div>
+                `;
+            } 
+            // --- VODAFONE ---
+            else if (mode === 'vf') {
+                html = `
+                    <div class="label">المبلغ المراد تحويله</div>
+                    <div class="input-group">
+                        <span>EGP</span>
+                        <input type="number" id="amount" placeholder="00" style="border-color:var(--vodafone)">
+                    </div>
+                    <button class="btn btn-main" onclick="runUSSD('vf')" style="background:var(--vodafone); color:#fff;">
+                        اتصال بالكود (*9*7...) 📞
+                    </button>
+                    <button class="btn btn-copy" onclick="copyText('${NUMBERS.vodafone}')">
+                        نسخ الرقم فقط
+                    </button>
+                `;
+            }
+            // --- ETISALAT ---
+            else if (mode === 'et') {
+                html = `
+                    <div class="label">اتصالات كاش</div>
+                    
+                    <a href="${ETISALAT_APP_LINK}" class="btn btn-etisalat-app">
+                        تحويل من خلال التطبيق 📲
+                    </a>
+                    
+                    <button class="btn btn-main" onclick="runUSSD('et')" style="background:transparent; border:1px solid var(--etisalat); color:var(--etisalat);">
+                        اتصال بالكود (*777#) 📞
+                    </button>
+                    
+                    <div class="copy-box" onclick="copyText('${NUMBERS.etisalat}')" style="margin-top:15px;">
+                        <div class="copy-number">${NUMBERS.etisalat}</div>
+                        <div style="font-size:12px; color:#666; margin-top:5px;">اضغط لنسخ الرقم</div>
+                    </div>
+                `;
+            }
+            // --- ORANGE --- (تحويل لرقم اتصالات)
+            else if (mode === 'og') {
+                html = `
+                    <div class="label">أورنج كاش</div>
+                    <p style="font-size:12px; color:#888; margin-bottom:10px;">سيتم التحويل إلى محفظة اتصالات</p>
+                    
+                    <button class="btn btn-main" onclick="runUSSD('og')" style="background:var(--orange); color:#fff;">
+                        اتصال بالكود (#7115#) 📞
+                    </button>
+                    
+                    <div class="copy-box" onclick="copyText('${NUMBERS.etisalat}')">
+                        <div class="copy-number">${NUMBERS.etisalat}</div>
+                        <div style="font-size:12px; color:#666; margin-top:5px;">اضغط لنسخ الرقم</div>
+                    </div>
+                `;
+            }
+
+            area.innerHTML = html;
+        }
+
+        function runUSSD(net) {
+            let code = '';
+            
+            if (net === 'vf') {
+                // فودافون: *9*7*الرقم*المبلغ#
+                const amount = document.getElementById('amount').value;
+                if(!amount) { alert('يرجى إدخال المبلغ أولاً'); return; }
+                
+                // %23 هو كود الشباك (#) في روابط الهاتف
+                code = `*9*7*${NUMBERS.vodafone}*${amount}%23`;
+            
+            } else if (net === 'et') {
+                // اتصالات: *777*1#
+                code = `*777*1%23`;
+            
+            } else if (net === 'og') {
+                // أورنج: #7115#
+                code = `%237115%23`;
+            }
+
+            window.location.href = `tel:${code}`;
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            });
+        }
+
+    </script>
+</body>
+</html>
