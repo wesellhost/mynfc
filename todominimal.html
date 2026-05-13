@@ -107,7 +107,6 @@
             margin-bottom: 30px;
         }
 
-        /* Hide the list entirely if it's empty to prevent extra margin spacing */
         .task-list:empty {
             margin-bottom: 0;
         }
@@ -164,17 +163,28 @@
 
         .task-time {
             font-size: 12px;
+            font-variant-numeric: tabular-nums;
             color: var(--text-muted);
             background: #f3f4f6;
             padding: 2px 8px;
             border-radius: 12px;
             margin-left: auto;
             margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .task-time.expired {
+            color: #ef4444;
+            background-color: #fee2e2;
         }
 
         .task-item input[type="checkbox"]:checked ~ .task-text {
             text-decoration: line-through;
             color: var(--text-muted);
+        }
+
+        .task-item input[type="checkbox"]:checked ~ .task-time {
+            opacity: 0.5;
         }
 
         .delete-btn {
@@ -207,7 +217,6 @@
             line-height: 1.5;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 480px) {
             .todo-container {
                 padding: 30px 20px;
@@ -245,15 +254,67 @@
             const taskList = document.getElementById('task-list');
             const countDisplay = document.getElementById('count');
 
-            // Removed the default data so the list starts empty
-            let tasks = [];
+            let tasks = JSON.parse(localStorage.getItem('my-todos')) || [];
+            let audioCtx = null; // Initialized later to respect browser autoplay policies
+
+            function saveTasks() {
+                localStorage.setItem('my-todos', JSON.stringify(tasks));
+            }
+
+            // Generates a clean, modern "ding-ding" notification sound natively
+            function playModernChime() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const playNote = (freq, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05); // Fade in
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration); // Fade out
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+
+                const now = audioCtx.currentTime;
+                playNote(880, now, 0.4);            // First note (A5)
+                playNote(1108.73, now + 0.15, 0.6); // Second note (C#6 - higher pitch)
+            }
+
+            // Formats milliseconds into MM:SS
+            function formatTime(ms) {
+                if (ms <= 0) return "00:00";
+                const mins = Math.floor(ms / 60000);
+                const secs = Math.floor((ms % 60000) / 1000);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
 
             function renderTasks() {
                 taskList.innerHTML = '';
                 let remaining = 0;
+                const now = Date.now();
 
                 tasks.forEach(task => {
                     if (!task.completed) remaining++;
+
+                    let timeDisplay = '';
+                    let isExpired = false;
+
+                    if (task.endTime) {
+                        const timeLeft = task.endTime - now;
+                        isExpired = timeLeft <= 0;
+                        timeDisplay = formatTime(timeLeft);
+                    }
 
                     const li = document.createElement('li');
                     li.className = 'task-item';
@@ -262,7 +323,7 @@
                         <label>
                             <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
                             <span class="task-text">${task.text}</span>
-                            ${task.time ? `<span class="task-time">${task.time}m</span>` : ''}
+                            ${task.endTime ? `<span class="task-time ${isExpired ? 'expired' : ''}" id="time-${task.id}">${timeDisplay}</span>` : ''}
                         </label>
                         <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
                     `;
@@ -274,15 +335,27 @@
 
             function addTask() {
                 const text = taskInput.value.trim();
-                const time = timeInput.value.trim();
+                const timeStr = timeInput.value.trim();
+
+                // Initialize AudioContext on first user interaction
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
                 if (text) {
+                    let endTime = null;
+                    if (timeStr && parseInt(timeStr) > 0) {
+                        // Calculate future expiration time
+                        endTime = Date.now() + (parseInt(timeStr) * 60 * 1000); 
+                    }
+
                     tasks.push({
                         id: Date.now(),
                         text: text,
-                        time: time ? parseInt(time) : null,
-                        completed: false
+                        endTime: endTime,
+                        completed: false,
+                        notified: false
                     });
+                    
+                    saveTasks();
                     taskInput.value = '';
                     timeInput.value = '';
                     renderTasks();
@@ -293,25 +366,52 @@
                 const task = tasks.find(t => t.id === id);
                 if (task) {
                     task.completed = !task.completed;
+                    saveTasks();
                     renderTasks();
                 }
             };
 
             window.deleteTask = function(id) {
                 tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
                 renderTasks();
             };
 
             addBtn.addEventListener('click', addTask);
-            
-            taskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTask();
-            });
-            timeInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addTask();
-            });
+            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+            timeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
-            // Initial render
+            // Timer Loop: Checks every second for expired tasks
+            setInterval(() => {
+                let needsSave = false;
+                const now = Date.now();
+
+                tasks.forEach(task => {
+                    if (task.endTime && !task.completed) {
+                        const timeLeft = task.endTime - now;
+                        const timeElement = document.getElementById(`time-${task.id}`);
+
+                        // Trigger notification if time is up
+                        if (timeLeft <= 0 && !task.notified) {
+                            playModernChime();
+                            task.notified = true;
+                            needsSave = true;
+                            
+                            if (timeElement) {
+                                timeElement.textContent = "00:00";
+                                timeElement.classList.add('expired');
+                            }
+                        } 
+                        // Update visual countdown
+                        else if (timeLeft > 0 && timeElement) {
+                            timeElement.textContent = formatTime(timeLeft);
+                        }
+                    }
+                });
+
+                if (needsSave) saveTasks();
+            }, 1000);
+
             renderTasks();
         });
     </script>
