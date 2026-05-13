@@ -254,14 +254,16 @@
             const taskList = document.getElementById('task-list');
             const countDisplay = document.getElementById('count');
 
+            // Load saved tasks from localStorage
             let tasks = JSON.parse(localStorage.getItem('my-todos')) || [];
-            let audioCtx = null; // Initialized later to respect browser autoplay policies
+            let audioCtx = null; 
 
+            // Save tasks to localStorage
             function saveTasks() {
                 localStorage.setItem('my-todos', JSON.stringify(tasks));
             }
 
-            // Generates a clean, modern "ding-ding" notification sound natively
+            // Generate "ding" sound
             function playModernChime() {
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -276,8 +278,8 @@
                     osc.frequency.setValueAtTime(freq, startTime);
                     
                     gain.gain.setValueAtTime(0, startTime);
-                    gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05); // Fade in
-                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration); // Fade out
+                    gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration); 
                     
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
@@ -287,11 +289,11 @@
                 };
 
                 const now = audioCtx.currentTime;
-                playNote(880, now, 0.4);            // First note (A5)
-                playNote(1108.73, now + 0.15, 0.6); // Second note (C#6 - higher pitch)
+                playNote(880, now, 0.4);            
+                playNote(1108.73, now + 0.15, 0.6); 
             }
 
-            // Formats milliseconds into MM:SS
+            // Format time as MM:SS
             function formatTime(ms) {
                 if (ms <= 0) return "00:00";
                 const mins = Math.floor(ms / 60000);
@@ -299,6 +301,7 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             }
 
+            // Render tasks to the screen
             function renderTasks() {
                 taskList.innerHTML = '';
                 let remaining = 0;
@@ -333,17 +336,16 @@
                 countDisplay.textContent = remaining;
             }
 
+            // Add a new task
             function addTask() {
                 const text = taskInput.value.trim();
                 const timeStr = timeInput.value.trim();
 
-                // Initialize AudioContext on first user interaction
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
                 if (text) {
                     let endTime = null;
                     if (timeStr && parseInt(timeStr) > 0) {
-                        // Calculate future expiration time
                         endTime = Date.now() + (parseInt(timeStr) * 60 * 1000); 
                     }
 
@@ -381,7 +383,7 @@
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
             timeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
-            // Timer Loop: Checks every second for expired tasks
+            // Update timers every second
             setInterval(() => {
                 let needsSave = false;
                 const now = Date.now();
@@ -391,7 +393,6 @@
                         const timeLeft = task.endTime - now;
                         const timeElement = document.getElementById(`time-${task.id}`);
 
-                        // Trigger notification if time is up
                         if (timeLeft <= 0 && !task.notified) {
                             playModernChime();
                             task.notified = true;
@@ -401,9 +402,7 @@
                                 timeElement.textContent = "00:00";
                                 timeElement.classList.add('expired');
                             }
-                        } 
-                        // Update visual countdown
-                        else if (timeLeft > 0 && timeElement) {
+                        } else if (timeLeft > 0 && timeElement) {
                             timeElement.textContent = formatTime(timeLeft);
                         }
                     }
