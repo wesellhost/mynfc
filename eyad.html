@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Eyad Aladdin</title>
+
+<style>
+
+:root {
+    --bg-color: #f4f5f5;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #9ca3af;
+    --border-color: #e5e7eb;
+    --btn-bg: #374151;
+    --btn-hover: #1f2937;
+
+    --todo-bg: #f3f4f6;
+    --todo-text: #6b7280;
+    --progress-bg: #eff6ff;
+    --progress-text: #3b82f6;
+    --review-bg: #fffbeb;
+    --review-text: #d97706;
+    --blocked-bg: #fef2f2;
+    --blocked-text: #ef4444;
+    --completed-bg: #f0fdf4;
+    --completed-text: #22c55e;
+    --canceled-bg: #f5f3ff;
+    --canceled-text: #8b5cf6;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg-color);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    color:var(--text-main);
+}
+
+/* CARD */
+
+.vcard{
+    width:100%;
+    max-width:390px;
+    background:var(--card-bg);
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 10px 40px rgba(0,0,0,0.04);
+    position:relative;
+}
+
+/* ANIMATED HEADER */
+
+.banner{
+    height:200px;
+    position:relative;
+    overflow:hidden;
+
+    background:
+    linear-gradient(
+        -45deg,
+        #111827,
+        #4f46e5,
+        #ec4899,
+        #3b82f6,
+        #111827
+    );
+
+    background-size:400% 400%;
+    animation:gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove{
+
+    0%{
+        background-position:0% 50%;
+    }
+
+    50%{
+        background-position:100% 50%;
+    }
+
+    100%{
+        background-position:0% 50%;
+    }
+
+}
+
+/* GLOW EFFECTS */
+
+.banner::before{
+    content:"";
+    position:absolute;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    filter:blur(40px);
+    top:-120px;
+    right:-90px;
+    animation:floatOne 8s ease-in-out infinite;
+}
+
+.banner::after{
+    content:"";
+    position:absolute;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+    filter:blur(35px);
+    bottom:-120px;
+    left:-80px;
+    animation:floatTwo 10s ease-in-out infinite;
+}
+
+@keyframes floatOne{
+
+    0%{
+        transform:translateY(0px) translateX(0px);
+    }
+
+    50%{
+        transform:translateY(20px) translateX(-10px);
+    }
+
+    100%{
+        transform:translateY(0px) translateX(0px);
+    }
+
+}
+
+@keyframes floatTwo{
+
+    0%{
+        transform:translateY(0px) translateX(0px);
+    }
+
+    50%{
+        transform:translateY(-20px) translateX(15px);
+    }
+
+    100%{
+        transform:translateY(0px) translateX(0px);
+    }
+
+}
+
+/* FLOATING PARTICLES */
+
+.particles{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+}
+
+.particles span{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.35);
+    animation:particleFloat linear infinite;
+}
+
+.particles span:nth-child(1){
+    left:18%;
+    animation-duration:7s;
+}
+
+.particles span:nth-child(2){
+    left:38%;
+    animation-duration:10s;
+    animation-delay:2s;
+}
+
+.particles span:nth-child(3){
+    left:62%;
+    animation-duration:8s;
+    animation-delay:1s;
+}
+
+.particles span:nth-child(4){
+    left:82%;
+    animation-duration:11s;
+    animation-delay:3s;
+}
+
+@keyframes particleFloat{
+
+    0%{
+        transform:translateY(220px) scale(0);
+        opacity:0;
+    }
+
+    20%{
+        opacity:1;
+    }
+
+    100%{
+        transform:translateY(-40px) scale(1);
+        opacity:0;
+    }
+
+}
+
+/* HEADER BADGE */
+
+.banner-badge{
+    position:absolute;
+    top:24px;
+    left:24px;
+    z-index:2;
+
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(10px);
+
+    color:white;
+
+    padding:10px 16px;
+
+    border-radius:999px;
+
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.2px;
+}
+
+/* PROFILE IMAGE */
+
+.avatar-wrapper{
+    display:flex;
+    justify-content:center;
+    margin-top:-62px;
+    position:relative;
+    z-index:5;
+}
+
+.avatar{
+    width:124px;
+    height:124px;
+    border-radius:50%;
+    overflow:hidden;
+    border:6px solid white;
+    background:#ddd;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* CONTENT */
+
+.content{
+    padding:22px 28px 30px;
+    text-align:center;
+}
+
+.name{
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-0.03em;
+    margin-bottom:6px;
+}
+
+.role{
+    font-size:15px;
+    color:var(--text-muted);
+    margin-bottom:20px;
+}
+
+/* STATUS */
+
+.agency{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    background:var(--progress-bg);
+    color:var(--progress-text);
+
+    padding:10px 16px;
+
+    border-radius:999px;
+
+    font-size:13px;
+    font-weight:600;
+
+    margin-bottom:26px;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+/* BIO */
+
+.bio{
+    font-size:14px;
+    line-height:1.7;
+    color:#4b5563;
+    margin-bottom:30px;
+}
+
+/* SOCIAL ICONS */
+
+.socials{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:30px;
+}
+
+.social-btn{
+    height:58px;
+    border:none;
+    border-radius:18px;
+    background:var(--todo-bg);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+    transition:0.3s ease;
+}
+
+.social-btn svg{
+    width:24px;
+    height:24px;
+    fill:#374151;
+    transition:0.3s ease;
+}
+
+.social-btn:hover{
+    transform:translateY(-4px);
+    background:#111827;
+}
+
+.social-btn:hover svg{
+    fill:white;
+}
+
+/* INFO */
+
+.info-group{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin-bottom:30px;
+}
+
+.info-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border-color);
+    text-align:left;
+}
+
+.info-icon{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:var(--todo-bg);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+}
+
+.info-label{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:3px;
+}
+
+.info-value{
+    font-size:15px;
+    font-weight:500;
+}
+
+/* SHARE BUTTON */
+
+.share-btn{
+    width:100%;
+    background:var(--btn-bg);
+    color:white;
+    padding:15px;
+    border-radius:18px;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    border:none;
+    cursor:pointer;
+    transition:0.25s ease;
+}
+
+.share-btn:hover{
+    background:var(--btn-hover);
+    transform:translateY(-2px);
+}
+
+/* FOOTER */
+
+.footer{
+    margin-top:22px;
+    font-size:12px;
+    color:var(--text-muted);
+}
+
+@media(max-width:420px){
+
+    .content{
+        padding:22px 22px 28px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="vcard">
+
+    <!-- HEADER -->
+    <div class="banner">
+
+        <div class="banner-badge">
+            Creative Marketing Agency
+        </div>
+
+        <!-- PARTICLES -->
+        <div class="particles">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+    <!-- AVATAR -->
+    <div class="avatar-wrapper">
+
+        <div class="avatar">
+
+            <img
+                src="https://scontent.fcai20-6.fna.fbcdn.net/v/t51.82787-15/687883692_17975918604040756_3968985667133421840_n.jpg?stp=dst-jpegr_tt6&_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=1Ij5Mvlk5-QQ7kNvwElocoe&_nc_oc=AdqdaA3kksH94Y8by9KbD1tWnYKIwP1AGFxp4jF28MWEUpbLxh6Wqbc4rYRxpn91QUc&_nc_zt=23&se=-1&_nc_ht=scontent.fcai20-6.fna&_nc_gid=Y2633Nb24x3orMCAVrQjUg&_nc_ss=7b2a8&oh=00_Af5SfV62Ksp60zOFLN2Zo9qTKaCxekmEQLqpTvIWVjWbRg&oe=6A0A63B1"
+                alt="Samira Salama"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <h1 class="name">
+  Eyad Aladdin
+        </h1>
+
+        <p class="role">
+           Creative Art Director
+        </p>
+
+        <div class="agency">
+            <span class="dot"></span>
+            Managing 25+ Brand Campaigns
+        </div>
+
+        <p class="bio">
+            Helping brands grow through creative storytelling,
+            viral campaigns, and strategic social media marketing.
+        </p>
+
+        <!-- SOCIALS -->
+        <div class="socials">
+
+            <!-- Facebook -->
+          
+            <button class="social-btn">
+                  <a target="_blank" href="https://www.facebook.com/eyad.aladdin.2025">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 12A10 10 0 1 0 10.44 21.87v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.62.77-1.62 1.56V12h2.76l-.44 2.88h-2.32v6.99A10 10 0 0 0 22 12"/>
+                </svg></a>
+            </button>
+
+            <!-- Instagram -->
+            <button class="social-btn">
+                    <a target="_blank" href="https://www.instagram.com/eyad._.aladdin">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm0 2h10c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3zm11.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+                </svg></a>
+            </button>
+
+            <!-- TikTok -->
+            <button class="social-btn">
+                   <a target="_blank" href="https://www.tiktok.com/@eyadaladdin">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.59 6.69A4.83 4.83 0 0 1 16 5.26V15a7 7 0 1 1-7-7c.19 0 .38.02.57.05v3.55a3.46 3.46 0 1 0 2.43 3.3V2h3.45a4.85 4.85 0 0 0 4.14 4.14z"/>
+                </svg></a>
+            </button>
+
+            <!-- WhatsApp -->
+            <button class="social-btn">
+                   <a target="_blank" href="https://wa.me/+201011472768">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.52 3.48A11.86 11.86 0 0 0 12.04 0C5.5 0 .16 5.34.16 11.88c0 2.1.55 4.15 1.6 5.96L0 24l6.35-1.66a11.8 11.8 0 0 0 5.69 1.45h.01c6.54 0 11.88-5.34 11.88-11.88 0-3.17-1.24-6.15-3.41-8.43z"/>
+                </svg></a>
+            </button>
+
+        </div>
+
+        <!-- CONTACT INFO -->
+        <div class="info-group">
+
+            <div class="info-item">
+
+                <div class="info-icon">
+                    ✉️
+                </div>
+
+                <div>
+                    <div class="info-label">
+                        Email
+                    </div>
+
+                    <div class="info-value">
+                   Eyad@wesellhost.uk
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="info-item">
+
+                <div class="info-icon">
+                    📱
+                </div>
+
+                <div>
+                    <div class="info-label">
+                        Phone
+                    </div>
+
+                    <div class="info-value">
+                     +20 1011 4727 68
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="info-item">
+
+                <div class="info-icon">
+                    🚀
+                </div>
+
+                <div>
+                    <div class="info-label">
+                        Agency
+                    </div>
+
+                    <div class="info-value">
+                     Eyad Agency
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SHARE BUTTON -->
+        <button class="share-btn" id="shareBtn">
+            Share Contact
+        </button>
+
+        <div class="footer">
+        Created By mynfc.org
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const shareBtn = document.getElementById('shareBtn');
+
+shareBtn.addEventListener('click', async () => {
+
+    const shareData = {
+        title: 'Sarah Williams',
+        text: 'Social Media Manager VCard',
+        url: window.location.href
+    };
+
+    if(navigator.share){
+
+        try{
+
+            await navigator.share(shareData);
+
+        }catch(err){
+
+            console.log(err);
+
+        }
+
+    }else{
+
+        alert('Sharing not supported on this browser.');
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
