@@ -13,6 +13,8 @@
             --border-color: #e5e7eb;
             --btn-bg: #374151;
             --btn-hover: #1f2937;
+            --danger-bg: #fee2e2;
+            --danger-text: #ef4444;
         }
 
         * {
@@ -114,22 +116,37 @@
         .task-item {
             display: flex;
             align-items: center;
-            padding: 14px 16px;
+            justify-content: space-between;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
             background-color: var(--card-bg);
             transition: all 0.2s ease;
         }
 
-        .task-item label {
+        .task-main {
             display: flex;
             align-items: center;
             flex: 1;
-            cursor: pointer;
-            gap: 12px;
+            overflow: hidden;
         }
 
-        .task-item input[type="checkbox"] {
+        .task-main label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .task-main input[type="checkbox"] {
             appearance: none;
             width: 18px;
             height: 18px;
@@ -140,14 +157,15 @@
             justify-content: center;
             align-items: center;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
 
-        .task-item input[type="checkbox"]:checked {
+        .task-main input[type="checkbox"]:checked {
             background-color: var(--text-muted);
             border-color: var(--text-muted);
         }
 
-        .task-item input[type="checkbox"]:checked::after {
+        .task-main input[type="checkbox"]:checked::after {
             content: "✓";
             color: white;
             font-size: 12px;
@@ -159,32 +177,58 @@
             font-weight: 500;
             color: #4b5563;
             transition: color 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-main input[type="checkbox"]:checked ~ .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .time-badge {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 12px;
+            gap: 6px;
+        }
+
+        .time-badge.expired {
+            background-color: var(--danger-bg);
         }
 
         .task-time {
             font-size: 12px;
             font-variant-numeric: tabular-nums;
             color: var(--text-muted);
-            background: #f3f4f6;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: auto;
-            margin-right: 12px;
-            transition: all 0.3s ease;
         }
 
-        .task-time.expired {
-            color: #ef4444;
-            background-color: #fee2e2;
+        .time-badge.expired .task-time {
+            color: var(--danger-text);
         }
 
-        .task-item input[type="checkbox"]:checked ~ .task-text {
-            text-decoration: line-through;
-            color: var(--text-muted);
+        .play-pause-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+            padding: 0;
         }
 
-        .task-item input[type="checkbox"]:checked ~ .task-time {
+        .play-pause-btn:hover {
+            color: var(--text-main);
+        }
+
+        .task-item.completed .time-badge {
             opacity: 0.5;
+            pointer-events: none;
         }
 
         .delete-btn {
@@ -254,20 +298,29 @@
             const taskList = document.getElementById('task-list');
             const countDisplay = document.getElementById('count');
 
-            // Load saved tasks from localStorage
             let tasks = JSON.parse(localStorage.getItem('my-todos')) || [];
-            let audioCtx = null; 
+            let audioCtx = null;
 
-            // Save tasks to localStorage
+            // SVGs for modern Apple-style controls
+            const playIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+            const pauseIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+            // Migration mapping for old data structures just in case
+            tasks = tasks.map(task => {
+                if (task.remainingTime === undefined) {
+                    task.remainingTime = task.endTime ? Math.max(0, task.endTime - Date.now()) : null;
+                    task.state = task.remainingTime > 0 ? 'paused' : (task.endTime ? 'expired' : 'none');
+                    task.endTime = null; 
+                }
+                return task;
+            });
+
             function saveTasks() {
                 localStorage.setItem('my-todos', JSON.stringify(tasks));
             }
 
-            // Generate "ding" sound
             function playModernChime() {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
 
                 const playNote = (freq, startTime, duration) => {
@@ -293,7 +346,6 @@
                 playNote(1108.73, now + 0.15, 0.6); 
             }
 
-            // Format time as MM:SS
             function formatTime(ms) {
                 if (ms <= 0) return "00:00";
                 const mins = Math.floor(ms / 60000);
@@ -301,7 +353,6 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             }
 
-            // Render tasks to the screen
             function renderTasks() {
                 taskList.innerHTML = '';
                 let remaining = 0;
@@ -310,25 +361,37 @@
                 tasks.forEach(task => {
                     if (!task.completed) remaining++;
 
-                    let timeDisplay = '';
-                    let isExpired = false;
-
-                    if (task.endTime) {
-                        const timeLeft = task.endTime - now;
-                        isExpired = timeLeft <= 0;
-                        timeDisplay = formatTime(timeLeft);
+                    const li = document.createElement('li');
+                    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    
+                    let actionsHtml = '';
+                    if (task.remainingTime !== null) {
+                        const isExpired = task.state === 'expired';
+                        let displayMs = task.state === 'playing' ? Math.max(0, task.endTime - now) : task.remainingTime;
+                        
+                        actionsHtml = `
+                            <div class="time-badge ${isExpired ? 'expired' : ''}">
+                                <span class="task-time" id="time-${task.id}">${formatTime(displayMs)}</span>
+                                ${!isExpired && !task.completed ? `
+                                    <button class="play-pause-btn" onclick="toggleTimer(${task.id})">
+                                        ${task.state === 'playing' ? pauseIcon : playIcon}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
                     }
 
-                    const li = document.createElement('li');
-                    li.className = 'task-item';
-                    
                     li.innerHTML = `
-                        <label>
-                            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
-                            <span class="task-text">${task.text}</span>
-                            ${task.endTime ? `<span class="task-time ${isExpired ? 'expired' : ''}" id="time-${task.id}">${timeDisplay}</span>` : ''}
-                        </label>
-                        <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
+                        <div class="task-main">
+                            <label>
+                                <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                                <span class="task-text">${task.text}</span>
+                            </label>
+                        </div>
+                        <div class="task-actions">
+                            ${actionsHtml}
+                            <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
+                        </div>
                     `;
                     taskList.appendChild(li);
                 });
@@ -336,7 +399,6 @@
                 countDisplay.textContent = remaining;
             }
 
-            // Add a new task
             function addTask() {
                 const text = taskInput.value.trim();
                 const timeStr = timeInput.value.trim();
@@ -344,15 +406,14 @@
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
                 if (text) {
-                    let endTime = null;
-                    if (timeStr && parseInt(timeStr) > 0) {
-                        endTime = Date.now() + (parseInt(timeStr) * 60 * 1000); 
-                    }
+                    const timeInMs = timeStr && parseInt(timeStr) > 0 ? parseInt(timeStr) * 60 * 1000 : null;
 
                     tasks.push({
                         id: Date.now(),
                         text: text,
-                        endTime: endTime,
+                        remainingTime: timeInMs,
+                        endTime: null,
+                        state: timeInMs ? 'paused' : 'none',
                         completed: false,
                         notified: false
                     });
@@ -368,9 +429,35 @@
                 const task = tasks.find(t => t.id === id);
                 if (task) {
                     task.completed = !task.completed;
+                    
+                    // Auto-pause if task is checked off while running
+                    if (task.completed && task.state === 'playing') {
+                        task.state = 'paused';
+                        task.remainingTime = Math.max(0, task.endTime - Date.now());
+                        task.endTime = null;
+                    }
                     saveTasks();
                     renderTasks();
                 }
+            };
+
+            window.toggleTimer = function(id) {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const task = tasks.find(t => t.id === id);
+                if (!task || task.completed || task.state === 'expired') return;
+
+                if (task.state === 'paused') {
+                    task.state = 'playing';
+                    task.endTime = Date.now() + task.remainingTime;
+                } else if (task.state === 'playing') {
+                    task.state = 'paused';
+                    task.remainingTime = Math.max(0, task.endTime - Date.now());
+                    task.endTime = null;
+                }
+                
+                saveTasks();
+                renderTasks(); // Re-render to swap play/pause icons
             };
 
             window.deleteTask = function(id) {
@@ -383,32 +470,34 @@
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
             timeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
-            // Update timers every second
+            // Timer Loop: Updates DOM only for running tasks
             setInterval(() => {
-                let needsSave = false;
+                let needsRender = false;
                 const now = Date.now();
 
                 tasks.forEach(task => {
-                    if (task.endTime && !task.completed) {
+                    if (task.state === 'playing') {
                         const timeLeft = task.endTime - now;
                         const timeElement = document.getElementById(`time-${task.id}`);
 
-                        if (timeLeft <= 0 && !task.notified) {
-                            playModernChime();
-                            task.notified = true;
-                            needsSave = true;
-                            
-                            if (timeElement) {
-                                timeElement.textContent = "00:00";
-                                timeElement.classList.add('expired');
+                        if (timeLeft <= 0) {
+                            task.state = 'expired';
+                            task.remainingTime = 0;
+                            if (!task.notified) {
+                                playModernChime();
+                                task.notified = true;
                             }
-                        } else if (timeLeft > 0 && timeElement) {
+                            needsRender = true; // Triggers full render to turn red & hide play button
+                        } else if (timeElement) {
                             timeElement.textContent = formatTime(timeLeft);
                         }
                     }
                 });
 
-                if (needsSave) saveTasks();
+                if (needsRender) {
+                    saveTasks();
+                    renderTasks();
+                }
             }, 1000);
 
             renderTasks();
