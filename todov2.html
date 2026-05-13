@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your To Do</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f5;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --btn-bg: #374151;
+            --btn-hover: #1f2937;
+            
+            /* Status Colors */
+            --progress-bg: #eff6ff;
+            --progress-text: #3b82f6;
+            --completed-bg: #f0fdf4;
+            --completed-text: #22c55e;
+            --failed-bg: #fef2f2;
+            --failed-text: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .todo-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 520px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #212121;
+        }
+
+        /* Input Section */
+        .input-wrapper {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .input-row input[type="text"] {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            background: transparent;
+        }
+
+        .input-row input[type="number"] {
+            width: 70px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-main);
+            background: transparent;
+            text-align: center;
+        }
+
+        .desc-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 13px;
+            color: var(--text-main);
+            background: #f9fafb;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .desc-input:focus {
+            background: #f3f4f6;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .add-btn {
+            background-color: var(--btn-bg);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .task-list:empty {
+            margin-bottom: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            transition: all 0.2s ease;
+        }
+
+        .task-main {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            overflow: hidden;
+            padding-right: 12px;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: color 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Status Select Badge */
+        .status-select {
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .status-progress { background-color: var(--progress-bg); color: var(--progress-text); }
+        .status-completed { background-color: var(--completed-bg); color: var(--completed-text); }
+        .status-failed { background-color: var(--failed-bg); color: var(--failed-text); }
+
+        /* Strikethrough styles */
+        .task-item.completed .task-text, 
+        .task-item.failed .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* Actions */
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-badge {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            gap: 6px;
+        }
+
+        .time-badge.expired {
+            background-color: var(--failed-bg);
+        }
+
+        .task-time {
+            font-size: 12px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            color: #6b7280;
+        }
+
+        .time-badge.expired .task-time {
+            color: var(--failed-text);
+        }
+
+        .play-pause-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .play-pause-btn:hover { color: var(--text-main); }
+
+        .task-item.completed .time-badge, 
+        .task-item.failed .time-badge {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #d1d5db;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover { color: var(--failed-text); }
+
+        .footer {
+            margin-top: 20px;
+        }
+
+        .remaining-count {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .quote {
+            font-size: 13px;
+            font-style: italic;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            .todo-container { padding: 30px 20px; border-radius: 20px; }
+            .task-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .task-actions { width: 100%; justify-content: space-between; flex-direction: row-reverse; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="todo-container">
+        <h1>Your To Do</h1>
+        
+        <div class="input-wrapper">
+            <div class="input-row">
+                <input type="text" id="task-input" placeholder="Task title...">
+                <input type="number" id="time-input" placeholder="Min" min="1">
+                <button class="add-btn" id="add-btn">+</button>
+            </div>
+            <input type="text" id="desc-input" class="desc-input" placeholder="Add a description (optional)...">
+        </div>
+
+        <ul class="task-list" id="task-list">
+            <!-- Dynamic tasks will be injected here -->
+        </ul>
+
+        <div class="footer">
+            <div class="remaining-count">Tasks in Progress : <span id="count">0</span></div>
+            <div class="quote">"Doing what you love is the cornerstone of having abundance in your life." - Wayne Dyer</div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('task-input');
+            const descInput = document.getElementById('desc-input');
+            const timeInput = document.getElementById('time-input');
+            const addBtn = document.getElementById('add-btn');
+            const taskList = document.getElementById('task-list');
+            const countDisplay = document.getElementById('count');
+
+            let tasks = JSON.parse(localStorage.getItem('my-todos')) || [];
+            let audioCtx = null;
+
+            const playIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+            const pauseIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+            // Data Migration for old setups
+            tasks = tasks.map(task => {
+                if (!task.status) {
+                    task.status = task.completed ? 'completed' : 'progress';
+                }
+                if (task.remainingTime === undefined) {
+                    task.remainingTime = task.endTime ? Math.max(0, task.endTime - Date.now()) : null;
+                    task.state = task.remainingTime > 0 ? 'paused' : (task.endTime ? 'expired' : 'none');
+                    task.endTime = null; 
+                }
+                return task;
+            });
+
+            function saveTasks() {
+                localStorage.setItem('my-todos', JSON.stringify(tasks));
+            }
+
+            function playModernChime() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const playNote = (freq, startTime, duration) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration); 
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                };
+
+                const now = audioCtx.currentTime;
+                playNote(880, now, 0.4);            
+                playNote(1108.73, now + 0.15, 0.6); 
+            }
+
+            function formatTime(ms) {
+                if (ms <= 0) return "00:00";
+                const mins = Math.floor(ms / 60000);
+                const secs = Math.floor((ms % 60000) / 1000);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            function renderTasks() {
+                taskList.innerHTML = '';
+                let remaining = 0;
+                const now = Date.now();
+
+                tasks.forEach(task => {
+                    if (task.status === 'progress') remaining++;
+
+                    const li = document.createElement('li');
+                    li.className = `task-item ${task.status}`;
+                    
+                    let actionsHtml = '';
+                    if (task.remainingTime !== null) {
+                        const isExpired = task.state === 'expired';
+                        let displayMs = task.state === 'playing' ? Math.max(0, task.endTime - now) : task.remainingTime;
+                        
+                        actionsHtml = `
+                            <div class="time-badge ${isExpired ? 'expired' : ''}">
+                                <span class="task-time" id="time-${task.id}">${formatTime(displayMs)}</span>
+                                ${!isExpired && task.status === 'progress' ? `
+                                    <button class="play-pause-btn" onclick="toggleTimer(${task.id})">
+                                        ${task.state === 'playing' ? pauseIcon : playIcon}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    const statusClass = `status-${task.status}`;
+
+                    li.innerHTML = `
+                        <div class="task-main">
+                            <div class="task-header">
+                                <span class="task-text">${task.text}</span>
+                                <select class="status-select ${statusClass}" onchange="changeStatus(${task.id}, this.value)">
+                                    <option value="progress" ${task.status === 'progress' ? 'selected' : ''}>Progress</option>
+                                    <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="failed" ${task.status === 'failed' ? 'selected' : ''}>Failed</option>
+                                </select>
+                            </div>
+                            ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
+                        </div>
+                        <div class="task-actions">
+                            ${actionsHtml}
+                            <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+                });
+
+                countDisplay.textContent = remaining;
+            }
+
+            function addTask() {
+                const text = taskInput.value.trim();
+                const desc = descInput.value.trim();
+                const timeStr = timeInput.value.trim();
+
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                if (text) {
+                    const timeInMs = timeStr && parseInt(timeStr) > 0 ? parseInt(timeStr) * 60 * 1000 : null;
+
+                    tasks.push({
+                        id: Date.now(),
+                        text: text,
+                        description: desc,
+                        status: 'progress',
+                        remainingTime: timeInMs,
+                        endTime: null,
+                        state: timeInMs ? 'paused' : 'none',
+                        notified: false
+                    });
+                    
+                    saveTasks();
+                    taskInput.value = '';
+                    descInput.value = '';
+                    timeInput.value = '';
+                    renderTasks();
+                }
+            }
+
+            window.changeStatus = function(id, newStatus) {
+                const task = tasks.find(t => t.id === id);
+                if (task) {
+                    task.status = newStatus;
+                    
+                    // Auto-pause timer if marked completed or failed
+                    if ((newStatus === 'completed' || newStatus === 'failed') && task.state === 'playing') {
+                        task.state = 'paused';
+                        task.remainingTime = Math.max(0, task.endTime - Date.now());
+                        task.endTime = null;
+                    }
+                    saveTasks();
+                    renderTasks();
+                }
+            };
+
+            window.toggleTimer = function(id) {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const task = tasks.find(t => t.id === id);
+                if (!task || task.status !== 'progress' || task.state === 'expired') return;
+
+                if (task.state === 'paused') {
+                    task.state = 'playing';
+                    task.endTime = Date.now() + task.remainingTime;
+                } else if (task.state === 'playing') {
+                    task.state = 'paused';
+                    task.remainingTime = Math.max(0, task.endTime - Date.now());
+                    task.endTime = null;
+                }
+                
+                saveTasks();
+                renderTasks(); 
+            };
+
+            window.deleteTask = function(id) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                renderTasks();
+            };
+
+            addBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+            timeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+            descInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+
+            // Timer Loop
+            setInterval(() => {
+                let needsRender = false;
+                const now = Date.now();
+
+                tasks.forEach(task => {
+                    if (task.state === 'playing') {
+                        const timeLeft = task.endTime - now;
+                        const timeElement = document.getElementById(`time-${task.id}`);
+
+                        if (timeLeft <= 0) {
+                            task.state = 'expired';
+                            task.remainingTime = 0;
+                            if (!task.notified) {
+                                playModernChime();
+                                task.notified = true;
+                            }
+                            needsRender = true; 
+                        } else if (timeElement) {
+                            timeElement.textContent = formatTime(timeLeft);
+                        }
+                    }
+                });
+
+                if (needsRender) {
+                    saveTasks();
+                    renderTasks();
+                }
+            }, 1000);
+
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
