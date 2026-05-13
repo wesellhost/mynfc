@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smart Percentage Calculator</title>
+
+<style>
+:root {
+    --bg-color: #f4f5f5;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #9ca3af;
+    --border-color: #e5e7eb;
+    --btn-bg: #374151;
+    --btn-hover: #1f2937;
+    
+    /* Standardized Status Colors */
+    --todo-bg: #f3f4f6;
+    --todo-text: #6b7280;
+    --progress-bg: #eff6ff;
+    --progress-text: #3b82f6;
+    --review-bg: #fffbeb;
+    --review-text: #d97706;
+    --blocked-bg: #fef2f2;
+    --blocked-text: #ef4444;
+    --completed-bg: #f0fdf4;
+    --completed-text: #22c55e;
+    --canceled-bg: #f5f3ff;
+    --canceled-text: #8b5cf6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: var(--text-main);
+}
+
+.card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    padding: 36px;
+}
+
+.header {
+    margin-bottom: 32px;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+}
+
+.header p {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.mode-switcher {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    border: none;
+    background: var(--todo-bg);
+    color: var(--todo-text);
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+.mode-btn.active {
+    background: var(--btn-bg);
+    color: white;
+}
+
+.mode-btn:hover {
+    transform: translateY(-1px);
+}
+
+.input-group {
+    margin-bottom: 24px;
+}
+
+.label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.input-wrapper {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+input::placeholder {
+    color: #d1d5db;
+}
+
+.action-btn {
+    width: 100%;
+    border: none;
+    background: var(--btn-bg);
+    color: white;
+    padding: 16px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background 0.25s ease, transform 0.2s ease;
+    margin-top: 12px;
+}
+
+.action-btn:hover {
+    background: var(--btn-hover);
+    transform: translateY(-1px);
+}
+
+.result {
+    margin-top: 28px;
+    padding: 24px;
+    border-radius: 20px;
+    background: var(--progress-bg);
+    color: var(--progress-text);
+    display: none;
+    animation: fadeIn 0.25s ease;
+}
+
+.result-label {
+    font-size: 14px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.result-value {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.helper-text {
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 28px 22px;
+    }
+
+    input {
+        font-size: 24px;
+    }
+
+    .result-value {
+        font-size: 30px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    
+    <div class="header">
+        <h1>Smart Percentage Calculator</h1>
+        <p>Fast, clean, and intelligent percentage calculations for everyday use.</p>
+    </div>
+
+    <div class="mode-switcher">
+        <button class="mode-btn active" data-mode="percent-of">
+            % of Number
+        </button>
+
+        <button class="mode-btn" data-mode="increase">
+            Increase
+        </button>
+
+        <button class="mode-btn" data-mode="decrease">
+            Decrease
+        </button>
+    </div>
+
+    <!-- Percent Of -->
+    <div class="mode-content" id="percent-of">
+
+        <div class="input-group">
+            <label class="label">Percentage</label>
+            <div class="input-wrapper">
+                <input type="number" id="percentA" placeholder="25">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="label">Number</label>
+            <div class="input-wrapper">
+                <input type="number" id="numberA" placeholder="200">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Increase -->
+    <div class="mode-content hidden" id="increase">
+
+        <div class="input-group">
+            <label class="label">Original Number</label>
+            <div class="input-wrapper">
+                <input type="number" id="increaseBase" placeholder="100">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="label">Increase By (%)</label>
+            <div class="input-wrapper">
+                <input type="number" id="increasePercent" placeholder="15">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Decrease -->
+    <div class="mode-content hidden" id="decrease">
+
+        <div class="input-group">
+            <label class="label">Original Number</label>
+            <div class="input-wrapper">
+                <input type="number" id="decreaseBase" placeholder="100">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="label">Decrease By (%)</label>
+            <div class="input-wrapper">
+                <input type="number" id="decreasePercent" placeholder="20">
+            </div>
+        </div>
+
+    </div>
+
+    <button class="action-btn" id="calculateBtn">
+        Calculate
+    </button>
+
+    <div class="result" id="resultBox">
+        <div class="result-label">Result</div>
+        <div class="result-value" id="resultValue">0</div>
+
+        <div class="helper-text" id="helperText">
+            Smart percentage calculation complete.
+        </div>
+    </div>
+
+</div>
+
+<script>
+const modeButtons = document.querySelectorAll('.mode-btn');
+const contents = document.querySelectorAll('.mode-content');
+
+let activeMode = 'percent-of';
+
+modeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+
+        modeButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        activeMode = button.dataset.mode;
+
+        contents.forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        document.getElementById(activeMode).classList.remove('hidden');
+
+        document.getElementById('resultBox').style.display = 'none';
+    });
+});
+
+document.getElementById('calculateBtn').addEventListener('click', () => {
+
+    const resultBox = document.getElementById('resultBox');
+    const resultValue = document.getElementById('resultValue');
+    const helperText = document.getElementById('helperText');
+
+    let result = 0;
+    let message = '';
+
+    if (activeMode === 'percent-of') {
+
+        const percent = parseFloat(document.getElementById('percentA').value);
+        const number = parseFloat(document.getElementById('numberA').value);
+
+        if (isNaN(percent) || isNaN(number)) {
+            alert('Please enter valid values.');
+            return;
+        }
+
+        result = (percent / 100) * number;
+        message = `${percent}% of ${number}`;
+
+    }
+
+    if (activeMode === 'increase') {
+
+        const base = parseFloat(document.getElementById('increaseBase').value);
+        const percent = parseFloat(document.getElementById('increasePercent').value);
+
+        if (isNaN(base) || isNaN(percent)) {
+            alert('Please enter valid values.');
+            return;
+        }
+
+        result = base + ((percent / 100) * base);
+        message = `${base} increased by ${percent}%`;
+
+    }
+
+    if (activeMode === 'decrease') {
+
+        const base = parseFloat(document.getElementById('decreaseBase').value);
+        const percent = parseFloat(document.getElementById('decreasePercent').value);
+
+        if (isNaN(base) || isNaN(percent)) {
+            alert('Please enter valid values.');
+            return;
+        }
+
+        result = base - ((percent / 100) * base);
+        message = `${base} decreased by ${percent}%`;
+
+    }
+
+    resultValue.textContent = Number(result.toFixed(2)).toLocaleString();
+
+    helperText.textContent = message;
+
+    resultBox.style.display = 'block';
+});
+</script>
+
+</body>
+</html>
