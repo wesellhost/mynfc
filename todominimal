@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your To Do</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f5;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --btn-bg: #374151;
+            --btn-hover: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .todo-container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #212121;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--text-muted);
+        }
+
+        .input-group input[type="text"] {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-main);
+            background: transparent;
+        }
+
+        .input-group input[type="number"] {
+            width: 70px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-main);
+            background: transparent;
+            text-align: center;
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .add-btn {
+            background-color: var(--btn-bg);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        /* Hide the list entirely if it's empty to prevent extra margin spacing */
+        .task-list:empty {
+            margin-bottom: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            transition: all 0.2s ease;
+        }
+
+        .task-item label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+            gap: 12px;
+        }
+
+        .task-item input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .task-item input[type="checkbox"]:checked {
+            background-color: var(--text-muted);
+            border-color: var(--text-muted);
+        }
+
+        .task-item input[type="checkbox"]:checked::after {
+            content: "✓";
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .task-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4b5563;
+            transition: color 0.2s;
+        }
+
+        .task-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+
+        .task-item input[type="checkbox"]:checked ~ .task-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer {
+            margin-top: 20px;
+        }
+
+        .remaining-count {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .quote {
+            font-size: 13px;
+            font-style: italic;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .todo-container {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="todo-container">
+        <h1>Your To Do</h1>
+        
+        <div class="input-group">
+            <input type="text" id="task-input" placeholder="Add new task">
+            <input type="number" id="time-input" placeholder="Min" min="1">
+            <button class="add-btn" id="add-btn">+</button>
+        </div>
+
+        <ul class="task-list" id="task-list">
+            <!-- Dynamic tasks will be injected here -->
+        </ul>
+
+        <div class="footer">
+            <div class="remaining-count">Your remaining todos : <span id="count">0</span></div>
+            <div class="quote">"Doing what you love is the cornerstone of having abundance in your life." - Wayne Dyer</div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('task-input');
+            const timeInput = document.getElementById('time-input');
+            const addBtn = document.getElementById('add-btn');
+            const taskList = document.getElementById('task-list');
+            const countDisplay = document.getElementById('count');
+
+            // Removed the default data so the list starts empty
+            let tasks = [];
+
+            function renderTasks() {
+                taskList.innerHTML = '';
+                let remaining = 0;
+
+                tasks.forEach(task => {
+                    if (!task.completed) remaining++;
+
+                    const li = document.createElement('li');
+                    li.className = 'task-item';
+                    
+                    li.innerHTML = `
+                        <label>
+                            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                            <span class="task-text">${task.text}</span>
+                            ${task.time ? `<span class="task-time">${task.time}m</span>` : ''}
+                        </label>
+                        <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
+                    `;
+                    taskList.appendChild(li);
+                });
+
+                countDisplay.textContent = remaining;
+            }
+
+            function addTask() {
+                const text = taskInput.value.trim();
+                const time = timeInput.value.trim();
+
+                if (text) {
+                    tasks.push({
+                        id: Date.now(),
+                        text: text,
+                        time: time ? parseInt(time) : null,
+                        completed: false
+                    });
+                    taskInput.value = '';
+                    timeInput.value = '';
+                    renderTasks();
+                }
+            }
+
+            window.toggleTask = function(id) {
+                const task = tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    renderTasks();
+                }
+            };
+
+            window.deleteTask = function(id) {
+                tasks = tasks.filter(t => t.id !== id);
+                renderTasks();
+            };
+
+            addBtn.addEventListener('click', addTask);
+            
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+            timeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+
+            // Initial render
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
