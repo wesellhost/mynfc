@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - I Smile Dental Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 12px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tab-icon {
+            font-size: 20px;
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .value-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .value {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+            font-weight: 600;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: transform 0.2s;
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .copy-btn.copied {
+            background: #28a745;
+        }
+        
+        .bank-name {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+        
+        .recipient {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .recipient-label {
+            font-size: 11px;
+            color: #1976d2;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .recipient-name {
+            font-size: 18px;
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .instructions-title {
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .wallet-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .tab {
+                font-size: 11px;
+                padding: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://mynfc.org/uploads/vcards/profiles/603/Profile-facebook.png" alt="Logo" class="logo">
+            <h1>Send Money</h1>
+            <p>Choose your preferred payment method</p>
+        </div>
+        
+        <div class="card">
+            <div class="recipient">
+                <div class="recipient-label">Recipient</div>
+                <div class="recipient-name">I Smile Dental Center</div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('iban')">
+                    <span class="tab-icon">🏦</span>
+                    <span>IBAN</span>
+                </button>
+                <button class="tab" onclick="switchTab('account')">
+                    <span class="tab-icon">💳</span>
+                    <span>Account No.</span>
+                </button>
+                <button class="tab" onclick="switchTab('wallet')">
+                    <span class="tab-icon">📱</span>
+                    <span>Mobile Wallet</span>
+                </button>
+            </div>
+            
+            <!-- IBAN Method -->
+            <div id="iban" class="content active">
+                <div class="label">Egyptian IBAN Number</div>
+                <div class="value-box">
+                    <span class="value">EG 480003014831721001568010180</span>
+                    <button class="copy-btn" onclick="copyToClipboard('iban-number', this)">Copy</button>
+                </div>
+                <div class="label">Bank</div>
+                <div class="bank-name">Qatar National Bank (QNB)</div>
+                <div class="instructions">
+                    <div class="instructions-title">📝 How to transfer using IBAN:</div>
+                    <ol>
+                        <li>Open your banking app (InstaPay, QNB, etc.)</li>
+                        <li>Select "Send Money" or "Transfer"</li>
+                        <li>Choose "IBAN Transfer"</li>
+                        <li>Paste the IBAN number above</li>
+                        <li>Enter the amount and confirm</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Account Number Method -->
+            <div id="account" class="content">
+                <div class="label">Account Number</div>
+                <div class="value-box">
+                    <span class="value">1004285890</span>
+                    <button class="copy-btn" onclick="copyToClipboard('account-number', this)">Copy</button>
+                </div>
+                <div class="label">Bank</div>
+                <div class="bank-name">Qatar National Bank S.A.E</div>
+                <div class="instructions">
+                    <div class="instructions-title">📝 How to transfer using Account Number:</div>
+                    <ol>
+                        <li>Open your banking app</li>
+                        <li>Select "Send Money"</li>
+                        <li>Choose "Bank Account"</li>
+                        <li>Select Qatar National Bank</li>
+                        <li>Enter account number: 1004285890</li>
+                        <li>Enter amount and confirm</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Mobile Wallet Method -->
+            <div id="wallet" class="content">
+                <div class="wallet-badge">
+                    <span>📱</span>
+                    <span>Instant Transfer</span>
+                </div>
+                <div class="label">Mobile Wallet Number</div>
+                <div class="value-box">
+                    <span class="value" style="font-size: 18px; letter-spacing: 2px;">01001586338</span>
+                    <button class="copy-btn" onclick="copyToClipboard('wallet-number', this)">Copy</button>
+                </div>
+                <div class="instructions">
+                    <div class="instructions-title">📝 How to transfer using Mobile Wallet:</div>
+                    <ol>
+                        <li>Open InstaPay or your mobile wallet app</li>
+                        <li>Select "Send to Mobile Number"</li>
+                        <li>Enter: 01001586338</li>
+                        <li>Enter the amount</li>
+                        <li>Confirm the transfer (instant)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>💳 Secure Payment Gateway</p>
+            <p style="margin-top: 5px; font-size: 12px; opacity: 0.8;">All transactions are encrypted and secure</p>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        function copyToClipboard(elementId, btn) {
+            let textToCopy;
+            
+            if (elementId === 'iban-number') {
+                textToCopy = 'EG 480003014831721001568010180';
+            } else if (elementId === 'account-number') {
+                textToCopy = '1004285890';
+            } else if (elementId === 'wallet-number') {
+                textToCopy = '01001586338';
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
