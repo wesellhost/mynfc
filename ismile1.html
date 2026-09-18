@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6d0bbf">
+<title>Send Money • I Smile Dental Center</title>
+<style>
+:root{
+  --purple:#7a0ce0; --purple2:#5b0aa8; --purple3:#8f1dd1;
+  --orange:#f0742f; --orange2:#ff8b47;
+  --ink:#1d1d35; --mut:#8a8aa3; --bg:#f2f3f8; --card:#ffffff; --field:#efeff4;
+  --ok:#22c55e;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:40px}
+svg{display:block}
+
+/* ===== HEADER (InstaPay style) ===== */
+header{position:relative;background:linear-gradient(115deg,#6d0bbf 0%,#7a0ce0 55%,#5b0aa8 100%);padding:26px 20px 70px;overflow:hidden}
+header::before{content:"";position:absolute;top:-70px;left:-60px;width:340px;height:170px;background:linear-gradient(120deg,#ff8b47,#f0542f);border-radius:40px;transform:rotate(-8deg)}
+header::after{content:"";position:absolute;right:-40px;top:30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
+.brand{position:relative;display:flex;align-items:center;gap:14px;max-width:860px;margin:0 auto}
+.brand img{width:58px;height:58px;border-radius:50%;border:3px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.25);background:#fff;object-fit:cover}
+.brand h1{color:#fff;font-size:24px;font-weight:800;letter-spacing:.2px}
+.brand p{color:rgba(255,255,255,.85);font-size:13px;margin-top:2px}
+.hero-title{position:relative;max-width:860px;margin:18px auto 0;color:#fff;font-size:30px;font-weight:800}
+.hero-title span{color:#ffd9c4}
+
+/* ===== LAYOUT ===== */
+.wrap{max-width:860px;margin:-46px auto 0;padding:0 16px;position:relative}
+.card{background:var(--card);border-radius:20px;box-shadow:0 12px 34px rgba(29,29,53,.10);padding:22px;margin-bottom:18px}
+
+/* recipient strip */
+.rcpt{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#f6f4ff,#fff);border:1px solid #ece7fb;border-radius:14px;padding:12px 14px;margin-bottom:18px}
+.rcpt img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff}
+.rcpt b{font-size:16px}
+.rcpt small{display:block;color:var(--mut);font-size:12px}
+.rcpt .live{margin-left:auto;font-size:11px;font-weight:700;color:var(--ok);background:#e9fbf0;padding:6px 10px;border-radius:20px;white-space:nowrap}
+
+/* method tabs */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#f4f4f8;padding:6px;border-radius:14px;margin-bottom:18px}
+.tab{border:0;background:transparent;border-radius:10px;padding:12px 6px;cursor:pointer;font-weight:700;font-size:12.5px;color:#6b6b85;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.25s}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{background:linear-gradient(135deg,var(--purple3),var(--purple2));color:#fff;box-shadow:0 6px 16px rgba(122,12,224,.35)}
+
+/* panels */
+.panel{display:none;animation:up .3s ease}
+.panel.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--mut);text-transform:uppercase;margin:0 0 8px 2px}
+.vbox{display:flex;align-items:center;gap:10px;background:var(--field);border:2px solid #e4e4ee;border-radius:14px;padding:14px;margin-bottom:12px}
+.vbox .eg{font-weight:800;color:var(--mut);font-size:13px;border-right:2px solid #dcdce6;padding-right:10px}
+.vbox .val{font-family:ui-monospace,"Courier New",monospace;font-weight:700;font-size:14.5px;letter-spacing:.4px;word-break:break-all;flex:1}
+.copy{border:0;cursor:pointer;background:linear-gradient(135deg,var(--purple3),var(--purple2));color:#fff;font-weight:700;font-size:12.5px;padding:10px 16px;border-radius:10px;transition:.2s;white-space:nowrap}
+.copy:active{transform:scale(.94)}
+.copy.done{background:var(--ok)}
+.bankbadge{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#fff4ec,#fff);border:1px solid #ffe1cd;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;margin-bottom:6px}
+.bankbadge .q{width:30px;height:30px;border-radius:8px;background:#fff;border:1px solid #eee;display:flex;align-items:center;justify-content:center;color:var(--purple);font-size:11px;font-weight:900}
+.note{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:10px}
+
+/* ===== GUIDE (phone mockups) ===== */
+.guide h2{font-size:18px;margin-bottom:4px}
+.guide .sub{font-size:13px;color:var(--mut);margin-bottom:18px}
+.glayout{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.steps{flex:1;min-width:240px;list-style:none;display:none}
+.steps.on{display:block;animation:up .3s ease}
+.steps li{position:relative;padding:0 0 18px 42px;font-size:14px;line-height:1.5;color:#3c3c55}
+.steps li::before{content:attr(data-n);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--orange2),var(--orange));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(240,116,47,.35)}
+.steps li::after{content:"";position:absolute;left:13px;top:32px;bottom:2px;width:2px;background:#eee}
+.steps li:last-child::after{display:none}
+.steps b{color:var(--ink)}
+.mono{font-family:ui-monospace,"Courier New",monospace;background:#f4f4f8;border-radius:6px;padding:1px 6px;font-size:12.5px;font-weight:700}
+
+/* phone */
+.phone{width:292px;flex:none;border:9px solid #17172a;border-radius:38px;background:#f4f4f8;overflow:hidden;box-shadow:0 24px 50px rgba(29,29,53,.28);position:relative}
+.screen{display:none}
+.screen.on{display:block;animation:up .3s ease}
+.ph-head{position:relative;background:linear-gradient(115deg,#6d0bbf,#7a0ce0 60%,#5b0aa8);padding:16px 14px 34px;overflow:hidden}
+.ph-head::before{content:"";position:absolute;top:-40px;left:-40px;width:190px;height:90px;background:linear-gradient(120deg,#ff8b47,#f0542f);border-radius:26px;transform:rotate(-8deg)}
+.ph-head b{position:relative;color:#fff;font-size:17px;font-weight:800}
+.ph-from{position:relative;margin:-22px 10px 10px;background:#fbfbfd;border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.ph-from .q{width:34px;height:34px;background:#fff;border:1px solid #eee;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--purple);font-size:10px;font-weight:900}
+.ph-from small{color:var(--mut);font-size:9px;display:block}
+.ph-from b{font-size:10.5px}
+.ph-from span{color:var(--mut);font-size:9px;display:block}
+.ph-body{padding:4px 12px 12px}
+.ph-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:700;margin:8px 2px}
+.ph-row .fav{color:var(--orange);font-size:10.5px;font-weight:700}
+.ph-icons{display:flex;justify-content:space-between;margin:10px 2px 6px;position:relative}
+.ph-icons i{width:38px;height:38px;border-radius:50%;background:#ececf2;display:flex;align-items:center;justify-content:center;color:#2b2b45}
+.ph-icons i.on{background:linear-gradient(135deg,var(--purple3),var(--purple2));color:#fff;box-shadow:0 5px 12px rgba(122,12,224,.4)}
+.ph-icons svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ph-underline{height:3px;background:#e6e6ee;border-radius:2px;margin:2px 0 10px;position:relative}
+.ph-underline::after{content:"";position:absolute;width:20%;height:3px;border-radius:2px;background:var(--purple2);left:40%}
+.ph-title{color:var(--purple2);font-weight:800;font-size:13px;margin:4px 2px 10px}
+.ph-tabs{display:flex;position:relative;margin-bottom:12px}
+.ph-tabs span{flex:1;text-align:center;font-size:11px;font-weight:700;color:#b9b9c9;padding-bottom:8px}
+.ph-tabs span.on{color:var(--orange)}
+.ph-tabs::after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:#e6e6ee}
+.ph-tabs .bar{position:absolute;bottom:-1px;height:3px;width:50%;background:var(--orange);border-radius:2px}
+.ph-tabs .bar.r{left:50%}
+.ph-field{display:flex;align-items:center;gap:8px;background:#ececf2;border-radius:10px;padding:11px 10px;margin-bottom:9px;font-size:11px;font-weight:600;color:#2b2b45;position:relative}
+.ph-field .eg{color:#b9b9c9;font-weight:800;border-right:1px solid #d8d8e2;padding-right:8px}
+.ph-field .x{margin-left:auto;width:18px;height:18px;border:1.6px solid #2b2b45;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.ph-field .cur{margin-left:auto;color:#2b2b45;font-weight:800}
+.ph-field .amt{color:#b9b9c9}
+.ph-field .chev{margin-left:auto;color:#c9c9d6;font-weight:800}
+.ph-next{margin:6px 0 12px;background:linear-gradient(120deg,var(--purple3),var(--purple2));color:#fff;text-align:center;font-weight:800;font-size:13px;border-radius:12px;padding:12px;position:relative;box-shadow:0 8px 18px rgba(122,12,224,.35)}
+.ph-nav{display:flex;background:#fff;border-top:1px solid #eee;padding:9px 0 12px}
+.ph-nav i{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:#b9b9c9;font-style:normal;font-size:8.5px;font-weight:700}
+.ph-nav i.on{color:var(--purple)}
+.ph-nav svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* glowing step highlights on phone */
+.hl{position:relative}
+.hl::after{content:"";position:absolute;inset:-4px;border:2.5px solid var(--orange);border-radius:12px;animation:pulse 1.6s infinite;pointer-events:none}
+.hl::before{content:attr(data-n);position:absolute;top:-13px;right:-9px;z-index:3;width:20px;height:20px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(240,116,47,.5);font-style:normal}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,116,47,.45)}70%{box-shadow:0 0 0 9px rgba(240,116,47,0)}100%{box-shadow:0 0 0 0 rgba(240,116,47,0)}}
+
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:8px}
+footer b{color:var(--purple2)}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);background:#1d1d35;color:#fff;font-size:13px;font-weight:700;padding:12px 22px;border-radius:30px;box-shadow:0 10px 26px rgba(0,0,0,.3);transition:.35s;opacity:0;z-index:99}
+#toast.show{transform:translateX(-50%);opacity:1}
+
+@media(max-width:520px){
+  .hero-title{font-size:24px}
+  .phone{width:100%;max-width:300px}
+  .vbox .val{font-size:12.5px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="https://mynfc.org/uploads/vcards/profiles/603/Profile-facebook.png" alt="I Smile Dental Center logo">
+    <div>
+      <h1>I Smile Dental Center</h1>
+      <p>Fast &amp; secure payment page</p>
+    </div>
+  </div>
+  <div class="hero-title">Send Money <span>• InstaPay</span></div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ PAYMENT METHODS ============ -->
+  <section class="card">
+    <div class="rcpt">
+      <img src="https://mynfc.org/uploads/vcards/profiles/603/Profile-facebook.png" alt="">
+      <div><b>I Smile Dental Center</b><small>Choose a method, copy &amp; pay in seconds</small></div>
+      <span class="live">● Ready to receive</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" data-m="iban" onclick="sel('iban')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6"/><path d="M4 9h16"/><path d="M6 12v6M10 12v6M14 12v6M18 12v6"/><path d="M3 21h18"/></svg>
+        IBAN
+      </button>
+      <button class="tab" data-m="acc" onclick="sel('acc')">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+        Account No.
+      </button>
+      <button class="tab" data-m="wal" onclick="sel('wal')">
+        <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>
+        Mobile Wallet
+      </button>
+    </div>
+
+    <!-- IBAN -->
+    <div class="panel on" data-m="iban">
+      <p class="lbl">Egyptian IBAN</p>
+      <div class="vbox">
+        <span class="eg">EG</span>
+        <span class="val">480003014831721001568010180</span>
+        <button class="copy" onclick="cp('EG480003014831721001568010180',this)">Copy</button>
+      </div>
+      <div class="bankbadge"><span class="q">QNB</span> Qatar National Bank (QNB)</div>
+      <p class="note">Works from <b>any bank app</b> in Egypt or abroad. Paste the IBAN exactly as copied — the receiver name <b>I Smile Dental Center</b> must appear before confirming.</p>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div class="panel" data-m="acc">
+      <p class="lbl">Bank Account Number</p>
+      <div class="vbox">
+        <span class="val">1004285890</span>
+        <button class="copy" onclick="cp('1004285890',this)">Copy</button>
+      </div>
+      <div class="bankbadge"><span class="q">QNB</span> Qatar National Bank S.A.E</div>
+      <p class="note">Inside InstaPay choose <b>Bank Account → Account NO.</b>, select <b>Qatar National Bank S.A.E</b> then paste the number.</p>
+    </div>
+
+    <!-- WALLET -->
+    <div class="panel" data-m="wal">
+      <p class="lbl">Mobile Wallet Number</p>
+      <div class="vbox">
+        <span class="val" style="letter-spacing:2px">01001586338</span>
+        <button class="copy" onclick="cp('01001586338',this)">Copy</button>
+      </div>
+      <div class="bankbadge"><span class="q">📱</span> Instant wallet-to-wallet transfer</div>
+      <p class="note">Fastest option ⚡ — in InstaPay pick the <b>Mobile</b> icon, enter the number and send. Money arrives instantly.</p>
+    </div>
+  </section>
+
+  <!-- ============ VISUAL GUIDE ============ -->
+  <section class="card guide">
+    <h2>How to transfer on InstaPay</h2>
+    <p class="sub">Follow the glowing steps on the screen — exactly what you'll see in the app.</p>
+
+    <div class="glayout">
+      <!-- PHONE -->
+      <div class="phone">
+        <!-- IBAN SCREEN -->
+        <div class="screen on" data-m="iban">
+          <div class="ph-head"><b>Send Money</b></div>
+          <div class="ph-from"><span class="q">QNB</span><div><small>From</small><b>wesellhostqnb@instapay</b><span>ACCOUNT •••9832</span></div></div>
+          <div class="ph-body">
+            <div class="ph-row"><span>Send Money to</span><span class="fav">★ Favourites ›</span></div>
+            <div class="ph-icons"><i><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/></svg></i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></i><i class="on"><svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6"/><path d="M6 12v6M10 12v6M14 12v6M18 12v6"/><path d="M3 21h18"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12.5h5"/></svg></i></div>
+            <div class="ph-underline"></div>
+            <div class="ph-title">Bank Account</div>
+            <div class="ph-tabs hl" data-n="1"><span>Account NO.</span><span class="on">IBAN NO.</span><i class="bar r"></i></div>
+            <div class="ph-field hl" data-n="2"><span class="eg">EG</span> 480003014831721001568010180 <span class="x">✕</span></div>
+            <div class="ph-field hl" data-n="3">I Smile Dental Center</div>
+            <div class="ph-field"><span class="amt">Amount</span><span class="cur">EGP</span></div>
+            <div class="ph-next hl" data-n="4">Next</div>
+          </div>
+          <div class="ph-nav"><i><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></i><i class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5L15 9M15 9h-4.5M15 9v4.5"/></svg>Send</i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5L9 15M9 15h4.5M9 15v-4.5"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></i></div>
+        </div>
+
+        <!-- ACCOUNT SCREEN -->
+        <div class="screen" data-m="acc">
+          <div class="ph-head"><b>Send Money</b></div>
+          <div class="ph-from"><span class="q">QNB</span><div><small>From</small><b>wesellhostqnb@instapay</b><span>ACCOUNT •••9832</span></div></div>
+          <div class="ph-body">
+            <div class="ph-row"><span>Send Money to</span><span class="fav">★ Favourites ›</span></div>
+            <div class="ph-icons"><i><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/></svg></i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></i><i class="on"><svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6"/><path d="M6 12v6M10 12v6M14 12v6M18 12v6"/><path d="M3 21h18"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12.5h5"/></svg></i></div>
+            <div class="ph-underline"></div>
+            <div class="ph-title">Bank Account</div>
+            <div class="ph-tabs hl" data-n="1"><span class="on">Account NO.</span><span>IBAN NO.</span><i class="bar"></i></div>
+            <div class="ph-field hl" data-n="2">Qatar National Bank S.A.E <span class="chev">⌄</span></div>
+            <div class="ph-field hl" data-n="3">1004285890 <span class="x">✕</span></div>
+            <div class="ph-field hl" data-n="4">I Smile Dental Center</div>
+            <div class="ph-field"><span class="amt">Amount</span><span class="cur">EGP</span></div>
+            <div class="ph-next hl" data-n="5">Next</div>
+          </div>
+          <div class="ph-nav"><i><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></i><i class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5L15 9M15 9h-4.5M15 9v4.5"/></svg>Send</i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5L9 15M9 15h4.5M9 15v-4.5"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></i></div>
+        </div>
+
+        <!-- WALLET SCREEN -->
+        <div class="screen" data-m="wal">
+          <div class="ph-head"><b>Send Money</b></div>
+          <div class="ph-from"><span class="q">QNB</span><div><small>From</small><b>wesellhostqnb@instapay</b><span>ACCOUNT •••9832</span></div></div>
+          <div class="ph-body">
+            <div class="ph-row"><span>Send Money to</span><span class="fav">★ Favourites ›</span></div>
+            <div class="ph-icons hl" data-n="1"><i class="on"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/></svg></i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M3 9l9-6 9 6"/><path d="M6 12v6M10 12v6M14 12v6M18 12v6"/><path d="M3 21h18"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12.5h5"/></svg></i></div>
+            <div class="ph-underline" style="--x:0"></div>
+            <div class="ph-title">Mobile Number</div>
+            <div class="ph-field hl" data-n="2" style="letter-spacing:2px">01001586338 <span class="x">✕</span></div>
+            <div class="ph-field hl" data-n="3">I Smile Dental Center</div>
+            <div class="ph-field"><span class="amt">Amount</span><span class="cur">EGP</span></div>
+            <div class="ph-next hl" data-n="4">Next</div>
+          </div>
+          <div class="ph-nav"><i><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></i><i class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5L15 9M15 9h-4.5M15 9v4.5"/></svg>Send</i><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5L9 15M9 15h4.5M9 15v-4.5"/></svg></i><i><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></i></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <ol class="steps on" data-m="iban">
+        <li data-n="1">Open InstaPay → Send Money → tap the <b>Bank</b> icon and switch to the <b>IBAN NO.</b> tab.</li>
+        <li data-n="2">Paste the IBAN: <span class="mono">EG480003014831721001568010180</span></li>
+        <li data-n="3">Make sure the name <b>I Smile Dental Center</b> appears — this confirms you're paying the right place.</li>
+        <li data-n="4">Enter the amount in EGP and tap <b>Next</b> to confirm. ✅</li>
+      </ol>
+      <ol class="steps" data-m="acc">
+        <li data-n="1">Open InstaPay → Send Money → <b>Bank</b> icon, keeping the <b>Account NO.</b> tab selected.</li>
+        <li data-n="2">From the bank list choose <b>Qatar National Bank S.A.E</b>.</li>
+        <li data-n="3">Paste the account number: <span class="mono">1004285890</span></li>
+        <li data-n="4">Confirm the receiver name shows <b>I Smile Dental Center</b>.</li>
+        <li data-n="5">Enter the amount and tap <b>Next</b>. ✅</li>
+      </ol>
+      <ol class="steps" data-m="wal">
+        <li data-n="1">Open InstaPay → Send Money → tap the <b>Mobile</b> icon.</li>
+        <li data-n="2">Enter the wallet number: <span class="mono">01001586338</span></li>
+        <li data-n="3">Check that <b>I Smile Dental Center</b> appears as the receiver.</li>
+        <li data-n="4">Enter the amount and tap <b>Next</b> — instant delivery ⚡ ✅</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>Made with care by <b>I Smile Dental Center</b> • All transfers go directly to the clinic</footer>
+</div>
+
+<div id="toast">Copied ✓</div>
+
+<script>
+function sel(m){
+  document.querySelectorAll('.tab,.panel,.screen,.steps').forEach(el=>{
+    el.classList.toggle('on', el.dataset.m===m);
+  });
+}
+function cp(txt,btn){
+  const done=()=>{
+    btn.textContent='Copied ✓'; btn.classList.add('done');
+    const t=document.getElementById('toast'); t.classList.add('show');
+    setTimeout(()=>{btn.textContent='Copy'; btn.classList.remove('done'); t.classList.remove('show');},1800);
+  };
+  if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(done); }
+  else{
+    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove(); done();
+  }
+}
+</script>
+</body>
+</html>
